@@ -1,5 +1,5 @@
-html2text==2024.2.26
-regex==2023.12.25
+html2text
+regex
 sentence-transformers==2.6.1
 fireworks-ai==0.15.0
 langchain==0.1.16
