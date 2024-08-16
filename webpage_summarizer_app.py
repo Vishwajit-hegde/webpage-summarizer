@@ -4,7 +4,7 @@ import requests
 import html2text
 import numpy as np
 import re
-from sentence_transformers import SentenceTransformer
+#from sentence_transformers import SentenceTransformer
 from sentence_transformers.util import cos_sim
 from langchain.text_splitter import MarkdownTextSplitter
 from fireworks.client import Fireworks
@@ -53,9 +53,16 @@ def text_splitter(text, chunk_size=3000, chunk_overlap=500):
     chunks = [doc.page_content for doc in docs]
     return chunks
 
+def get_embeddings(input_texts,text_type='document'):
+    response = CLIENT.embeddings.create( 
+                model="nomic-ai/nomic-embed-text-v1.5",
+                input=[f"search_{text_type}: {text}" for text in input_texts],
+                )
+    return np.array([x.embedding for x in response.data])
+
 def retrieve_topn_docs(chunks,query,n=1):
-    embeddings = EMBED_MODEL.encode(chunks)
-    query_embedding = EMBED_MODEL.encode([query])
+    embeddings = get_embeddings(chunks,text_type='document')
+    query_embedding = get_embeddings([query],text_type='query')
     relevance_order = np.flip(np.array(np.argsort(cos_sim(query_embedding,embeddings)[0])))
 
     context = '\n'.join(chunks[r] for r in relevance_order[:n])
@@ -90,7 +97,7 @@ if submit and query!='' and url!='' and password!='':
             web_content = process_text(web_content)
             chunks = text_splitter(web_content)
             #st.markdown("Chunking done")
-            EMBED_MODEL = SentenceTransformer("mixedbread-ai/mxbai-embed-large-v1")
+            #EMBED_MODEL = SentenceTransformer("mixedbread-ai/mxbai-embed-large-v1")
             context = retrieve_topn_docs(chunks,query,n=1)
             #st.markdown("Embedding done")
             llm_prompt = create_llm_prompt(context=context,query=query)
