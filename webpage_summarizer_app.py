@@ -81,7 +81,7 @@ if submit and url!='' and query!='':
     else:
         web_content = process_text(web_content)
         chunks = text_splitter(web_content)
-        context = retrieve_topn_docs(chunks,query,n=2)
+        context = retrieve_topn_docs(chunks,query,n=1)
         llm_prompt = create_llm_prompt(context=context,query=query)
         llm_output = get_llm_response(llm_prompt=llm_prompt)
         st.markdown(llm_output)
