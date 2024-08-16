@@ -46,7 +46,7 @@ def process_text(text):
             text_new.append(line)
     return '\n'.join(text_new)
 
-def text_splitter(text, chunk_size=3000, chunk_overlap=500):
+def text_splitter(text, chunk_size=10000, chunk_overlap=1000):
     md_splitter = MarkdownTextSplitter(chunk_size=chunk_size, chunk_overlap=chunk_overlap)
     docs = []
     docs.extend(md_splitter.create_documents([text]))
@@ -69,7 +69,7 @@ def retrieve_topn_docs(chunks,query,n=1):
     return context
 
 def create_llm_prompt(context,query):
-    prompt_template = "Provide a brief summary based on the Query provided and the below Context. \n Context: {} \n Query: {}"
+    prompt_template = "Respond based on the Query provided and the below Context. Don't mention query or context while replying. Directly start with the answer. \n Context: {} \n Query: {}"
     llm_prompt = prompt_template.format(context,query)
     return llm_prompt
 
