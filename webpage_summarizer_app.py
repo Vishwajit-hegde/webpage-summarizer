@@ -8,11 +8,20 @@ from sentence_transformers import SentenceTransformer
 from sentence_transformers.util import cos_sim
 from langchain.text_splitter import MarkdownTextSplitter
 from fireworks.client import Fireworks
+from decryption import decrypt_api
 
+st.title("Webpage Summarizer")
 with open("api_key.txt", "r") as f:
-    API_KEY = f.read()
-CLIENT = Fireworks(api_key=API_KEY)
-EMBED_MODEL = SentenceTransformer("mixedbread-ai/mxbai-embed-large-v1")
+    encrypted_api = f.read()
+password = st.text_input("Enter password",type='password')
+x = 1
+try:
+    API_KEY = decrypt_api(password, encrypted_api)
+    CLIENT = Fireworks(api_key=API_KEY)
+except:
+    st.markdown('Incorrect password')
+    x = 0
+
 
 def get_response_text_from_url(url):
     if url.startswith('https://')==False and url.startswith('http://')==False:
@@ -68,20 +77,25 @@ def get_llm_response(llm_prompt,model_id="accounts/fireworks/models/llama-v3p1-8
                                             )
     return response.choices[0].message.content
 
-st.title("Webpage Summarizer")
 
-url = st.text_input("Enter Webpage URL")
-query = st.text_input("Enter your query")
 
-submit = st.button("Summarize")
-if submit and url!='' and query!='':
-    web_content = get_response_text_from_url(url)
-    if web_content=='no response':
-        st.markdown("There is no response from the webpage. Please enter another URL")
-    else:
-        web_content = process_text(web_content)
-        chunks = text_splitter(web_content)
-        context = retrieve_topn_docs(chunks,query,n=1)
-        llm_prompt = create_llm_prompt(context=context,query=query)
-        llm_output = get_llm_response(llm_prompt=llm_prompt)
-        st.markdown(llm_output)
+if x:
+    url = st.text_input("Enter Webpage URL")
+    query = st.text_input("Enter your query")
+
+    submit = st.button("Summarize")
+    if submit and url!='' and query!='':
+        web_content = get_response_text_from_url(url)
+        st.markdown("Text extraction done")
+        if web_content=='no response':
+            st.markdown("There is no response from the webpage. Please enter another URL")
+        else:
+            web_content = process_text(web_content)
+            chunks = text_splitter(web_content)
+            st.markdown("Chunking done")
+            EMBED_MODEL = SentenceTransformer("mixedbread-ai/mxbai-embed-large-v1")
+            context = retrieve_topn_docs(chunks,query,n=1)
+            st.markdown("Embedding done")
+            llm_prompt = create_llm_prompt(context=context,query=query)
+            llm_output = get_llm_response(llm_prompt=llm_prompt)
+            st.markdown(llm_output)
