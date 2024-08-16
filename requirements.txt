@@ -3,3 +3,4 @@ regex
 sentence-transformers==2.6.1
 fireworks-ai==0.15.0
 langchain==0.1.16
+cryptography
