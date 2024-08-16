@@ -46,7 +46,7 @@ def process_text(text):
             text_new.append(line)
     return '\n'.join(text_new)
 
-def text_splitter(text, chunk_size=10000, chunk_overlap=1000):
+def text_splitter(text, chunk_size=20000, chunk_overlap=1000):
     md_splitter = MarkdownTextSplitter(chunk_size=chunk_size, chunk_overlap=chunk_overlap)
     docs = []
     docs.extend(md_splitter.create_documents([text]))
