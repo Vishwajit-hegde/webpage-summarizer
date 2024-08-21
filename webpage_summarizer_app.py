@@ -110,7 +110,7 @@ if submit and url!='' and password!='':
             else:
                 context = chunks[0]
                 if option=='200 words summary':
-                    prompt_template = "Context: {} \n Provide a brief summary within 200 words based on the above Context."
+                    prompt_template = "Context: {} \n Provide a brief summary within 200 words with bullet points based on the above Context."
                 elif option=='500 words summary':
                     prompt_template = "Context: {} \n Provide a summary within 500 words based on the above Context."
                 else:
