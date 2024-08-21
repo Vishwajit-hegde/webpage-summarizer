@@ -83,7 +83,7 @@ def get_llm_response(llm_prompt,model_id="accounts/fireworks/models/llama-v3p1-8
     return response.choices[0].message.content
 
 url = st.text_input("Enter Webpage URL")
-option = st.radio("Select an option",['200 words summary','500 words summary','1000 words summary','Enter a query'],horizontal=True)
+option = st.radio("Select an option",['100-200 words summary','200-500 words summary','500-1000 words summary','Enter a query'],horizontal=True)
 if option=='Enter a query':
     query = st.text_input("Enter your query")
 
@@ -110,11 +110,11 @@ if submit and url!='' and password!='':
             else:
                 context = chunks[0]
                 if option=='200 words summary':
-                    prompt_template = "Context: {} \n Provide a brief summary within 200 words with bullet points based on the above Context."
+                    prompt_template = "Context: {} \n Provide a brief summary within 100 to 200 words with bullet points based on the above Context. Directly start with response without mentioning here is the summary or bullet points in the beginning."
                 elif option=='500 words summary':
-                    prompt_template = "Context: {} \n Provide a summary within 500 words based on the above Context."
+                    prompt_template = "Context: {} \n Provide a summary within 200 to 500 words based on the above Context. Directly start with response without mentioning here is the summary in the beginning."
                 else:
-                    prompt_template = "Context: {} \n Provide a detailed summary within 1000 words based on the above Context."                
+                    prompt_template = "Context: {} \n Provide a detailed summary within 500 to 1000 words based on the above Context. Directly start with response without mentioning here is the summary in the beginning."                
                 llm_prompt = prompt_template.format(context)
 
             llm_output = get_llm_response(llm_prompt=llm_prompt,model_id=model_id)
