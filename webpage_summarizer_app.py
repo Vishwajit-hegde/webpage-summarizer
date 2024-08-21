@@ -83,26 +83,43 @@ def get_llm_response(llm_prompt,model_id="accounts/fireworks/models/llama-v3p1-8
     return response.choices[0].message.content
 
 url = st.text_input("Enter Webpage URL")
-query = st.text_input("Enter your query")
-submit = st.button("Summarize")
-if submit and query!='' and url!='' and password!='':
+option = st.radio("Select an option",['200 words summary','500 words summary','1000 words summary','Enter a query'],horizontal=True)
+if option=='Enter a query':
+    query = st.text_input("Enter your query")
+
+submit = st.button("Submit")
+wrong_pwd = False
+if submit and url!='' and password!='':
     try:
-        API_KEY = decrypt_api(password, encrypted_api)
-        CLIENT = Fireworks(api_key=API_KEY)
+        try:
+            API_KEY = decrypt_api(password, encrypted_api)
+            CLIENT = Fireworks(api_key=API_KEY)
+        except:
+            st.markdown('Incorrect password')
+            wrong_pwd = True
+            raise DecryptionError("")
         web_content = get_response_text_from_url(url)
-        #st.markdown("Text extraction done")
         if web_content=='no response':
-            st.markdown("There is no response from the webpage. Please enter another URL")
+            st.markdown("There is no response from the webpage. Please enter another URL.")
         else:
             web_content = process_text(web_content)
             chunks = text_splitter(web_content)
-            #st.markdown("Chunking done")
-            #EMBED_MODEL = SentenceTransformer("mixedbread-ai/mxbai-embed-large-v1")
-            context = retrieve_topn_docs(chunks,query,n=1)
-            #st.markdown("Embedding done")
-            llm_prompt = create_llm_prompt(context=context,query=query)
+            if option=='Enter a query':
+                context = retrieve_topn_docs(chunks,query,n=1)
+                llm_prompt = create_llm_prompt(context=context,query=query)  
+            else:
+                context = chunks[0]
+                if option=='200 words summary':
+                    prompt_template = "Context: {} \n Provide a brief summary within 200 words based on the above Context."
+                elif option=='500 words summary':
+                    prompt_template = "Context: {} \n Provide a summary within 500 words based on the above Context."
+                else:
+                    prompt_template = "Context: {} \n Provide a detailed summary within 1000 words based on the above Context."                
+                llm_prompt = prompt_template.format(context)
+
             llm_output = get_llm_response(llm_prompt=llm_prompt,model_id=model_id)
             st.markdown(llm_output)
     except:
-        st.markdown('Incorrect password')
+        if not wrong_pwd:
+            st.markdown('Error processing the URL. Please enter another URL.')
  
