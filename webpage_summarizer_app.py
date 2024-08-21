@@ -109,9 +109,9 @@ if submit and url!='' and password!='':
                 llm_prompt = create_llm_prompt(context=context,query=query)  
             else:
                 context = chunks[0]
-                if option=='200 words summary':
+                if option=='100-200 words summary':
                     prompt_template = "Context: {} \n Provide a brief summary within 100 to 200 words with bullet points based on the above Context. Directly start with response without mentioning here is the summary or bullet points in the beginning."
-                elif option=='500 words summary':
+                elif option=='200-500 words summary':
                     prompt_template = "Context: {} \n Provide a summary within 200 to 500 words based on the above Context. Directly start with response without mentioning here is the summary in the beginning."
                 else:
                     prompt_template = "Context: {} \n Provide a detailed summary within 500 to 1000 words based on the above Context. Directly start with response without mentioning here is the summary in the beginning."                
